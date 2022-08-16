@@ -2,9 +2,6 @@ package com.mabrur.security.api;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,15 +19,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mabrur.security.domain.Role;
 import com.mabrur.security.domain.User;
 import com.mabrur.security.service.UserService;
-import com.mabrur.security.service.UserServiceImpl;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -48,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserResource {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
 
     @GetMapping("/users")
@@ -80,7 +73,6 @@ public class UserResource {
         String authorizationHeader = (request.getHeader(HttpHeaders.AUTHORIZATION));
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             try {
-
                 String refresh_token = authorizationHeader.substring("Bearer ".length());
                 Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
                 JWTVerifier verifier = JWT.require(algorithm).build();
@@ -94,8 +86,6 @@ public class UserResource {
                 .withClaim("roles",
                         user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                 .sign(algorithm);
-        // response.setHeader("access_token", access_token);
-        // response.setHeader("refresh_token", refresh_token);
                 Map<String, String> tokens = new HashMap<>();
                 tokens.put("access_token", access_token);
                 tokens.put("refresh_token", refresh_token);
@@ -114,7 +104,6 @@ public class UserResource {
         throw new RuntimeException("Refresh token is missing");
     }
 }
-
 }
 
 @Data
